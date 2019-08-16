@@ -53,7 +53,7 @@ module.exports = {
             id_availability: req.body.id_availability
         }
         modelBooks.insertBookPromise(data)
-            .then(result => res.json(result))
+            .then(result => res.send(result))
             .catch(err => console.log(err))
     },
     insertRent: (req, res) => {
@@ -65,7 +65,7 @@ module.exports = {
         }
         modelBooks.insertRentPromise(idbook,ava)
             .then(result => res.send(result))
-            .catch(err => console.log(err))
+            .catch(err => res.send(err))
     },
     returnBook: (req,res) =>{
         const idbook={
@@ -91,21 +91,25 @@ module.exports = {
             key: req.body.key
         } 
         modelBooks.searchBookPromise(str)
-            .then(result => res.json(result))   
+            .then(result => res.send(result))   
             .catch(err => console.log(err))
     },
     sortbytitle: (req, res) =>{
-        modelBooks.sortbytitlePromise()
+        const order=req.body.order || 'ASC'
+        
+        modelBooks.sortbytitlePromise(order)
             .then(result => res.json(result))   
             .catch(err => console.log(err))
     },
     sortbyrelease: (req, res) =>{
-        modelBooks.sortbyreleasePromise()
+        const order=req.body.order || 'ASC'
+        modelBooks.sortbyreleasePromise(order)
             .then(result => res.json(result))   
             .catch(err => console.log(err))
     },
     sortbygenre: (req, res) =>{
-        modelBooks.sortbygenrePromise()
+        const order=req.body.order || 'ASC'
+        modelBooks.sortbygenrePromise(order)
             .then(result => res.json(result))   
             .catch(err => console.log(err))
     },
