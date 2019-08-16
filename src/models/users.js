@@ -11,6 +11,8 @@ module.exports ={
                     reject(err)
                 }
             })
+            
+           
         })
     },
     userLogin: (data) =>{
