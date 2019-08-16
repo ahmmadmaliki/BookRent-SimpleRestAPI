@@ -5,7 +5,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             conn.query('INSERT book SET ?', data, (err, result) => {
                 if (!err) {
-                    resolve(result)
+                    resolve("ONE BOOK HAS BEEN ADDED")
                 } else {
                     reject(err)
                 }
@@ -16,7 +16,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             conn.query('UPDATE book SET ? WHERE ?', [data, id], (err, result) => {
                 if (!err) {
-                    resolve("UPDATE SUCCESSFULL")
+                    resolve("UPDATE SUCCESSFUL!!")
                 } else {
                     reject(err)
                 }
@@ -26,49 +26,51 @@ module.exports = {
     insertRentPromise: (id,ava) =>{
         return new Promise((resolve, reject) => {
             conn.query('SELECT id_availability FROM book where ?', id, (err,result)=>{
-                Object.keys(result).forEach(function(key) {
-                    if(result[key].id_availability==0){
-                        if(!err){
+                console.log(result)
+                if(result!=''){
+                    Object.keys(result).forEach(function(key){
+                        if(result[key].id_availability==0){
                             resolve("CANNOT BORROW THE BOOK! \n THE BOOK IS UNAVAILABLE")
                         }
                         else{
-                            reject(err)
-                        }
-                    }
-                    else{
-                        if(!err){
-                            conn.query('INSERT rent SET ? ', id ,()=> {
-                                conn.query('UPDATE book SET ? WHERE ?', [ava,id] , () => {
-                                    if (!err) {
-                                        resolve("TRANSACTION SUCCESSFUL!")
-                                    } else {
-                                        reject(err)
-                                    }
-                                })
-                
+                            conn.query('INSERT rent SET ? ', id ,(err,result)=>{
+                                if(!err){
+                                    conn.query('UPDATE book SET ? WHERE ?', [ava,id] ,(err,result)=>{
+                                        if(!err){
+                                            resolve("TRANSACTION SUCCESSFUL!")
+                                        }
+                                        else{
+                                            reject(err)
+                                        }
+                                    })
+                                }
+                                else{
+                                    reject(err)
+                                }
                             })
                         }
-                        else{
-                            reject(err)
-                        }
-                    }
-                })
-                
-            })
-            
+                    })
+                } 
+                else{
+                    reject("TRANSACTION ERROR!!")
+                }
+            })    
         })
     },
     returnBookPromise: (id, ava) =>{
         return new Promise((resolve, reject) => {
-            conn.query('DELETE FROM rent WHERE ? ', id ,()=> {
-                conn.query('UPDATE book SET ? WHERE ?', [ava,id] , (err, result) => {
-                    if (!err) {
-                        resolve("TRANSACTION SUCCESSFUL!")
-                    } else {
-                        reject(err)
-                    }
-                })
-
+            conn.query('DELETE FROM rent WHERE ? ', id ,(err,result)=> {
+                if(result.affectedRows==0){
+                    resolve("TRANSACTION ERROR!!")
+                }else{
+                    conn.query('UPDATE book SET ? WHERE ?', [ava,id] , (err, result) => {
+                        if (!err) {
+                            resolve("TRANSACTION SUCCESSFUL!")
+                        } else {
+                            reject(err)
+                        }
+                    })
+                }
             })
             
         })
@@ -120,19 +122,24 @@ module.exports = {
             JOIN availability on book.id_availability=availability.id \
             WHERE Title LIKE '%${str.key}%'`,(err, result) => {
                 if (!err) {
-                    resolve(result)
+                    if(result!=''){
+                        resolve(result)
+                    }
+                    else{
+                        resolve("NOT FOUND!")
+                    }
                 } else {
                     reject(err)
                 }
             })
         })
     },
-    sortbytitlePromise: () => {
+    sortbytitlePromise: (data) => {
         return new Promise((resolve, reject) => {
-            conn.query('SELECT book.id, book.Title, book.Description, book.Image, book.Date_Released, genre.Genres, availability.Availability FROM book \
+            conn.query(`SELECT book.id, book.Title, book.Description, book.Image, book.Date_Released, genre.Genres, availability.Availability FROM book \
             JOIN genre on book.id_genre=genre.id \
             JOIN availability on book.id_availability=availability.id \
-            ORDER BY book.Title ASC', (err, result) => {
+            ORDER BY book.Title ${data} `, (err, result) => {
                 if (!err) {
                     resolve(result)
                 } else {
@@ -141,12 +148,12 @@ module.exports = {
             })
         })
     },
-    sortbyreleasePromise: () => {
+    sortbyreleasePromise: (data) => {
         return new Promise((resolve, reject) => {
-            conn.query('SELECT book.id, book.Title, book.Description, book.Image, book.Date_Released, genre.Genres, availability.Availability FROM book \
+            conn.query(`SELECT book.id, book.Title, book.Description, book.Image, book.Date_Released, genre.Genres, availability.Availability FROM book \
             JOIN genre on book.id_genre=genre.id \
             JOIN availability on book.id_availability=availability.id \
-            ORDER BY book.Date_Released ASC', (err, result) => {
+            ORDER BY book.Date_Released ${data}`, (err, result) => {
                 if (!err) {
                     resolve(result)
                 } else {
@@ -155,12 +162,12 @@ module.exports = {
             })
         })
     },
-    sortbygenrePromise: () => {
+    sortbygenrePromise: (data) => {
         return new Promise((resolve, reject) => {
-            conn.query('SELECT book.id, book.Title, book.Description, book.Image, book.Date_Released, genre.Genres, availability.Availability FROM book \
+            conn.query(`SELECT book.id, book.Title, book.Description, book.Image, book.Date_Released, genre.Genres, availability.Availability FROM book \
              JOIN genre on book.id_genre=genre.id \
              JOIN availability on book.id_availability=availability.id \
-             ORDER BY genre.Genres ASC', (err, result) => {
+             ORDER BY genre.Genres ${data}`, (err, result) => {
                 if (!err) {
                     resolve(result)
                 } else {
