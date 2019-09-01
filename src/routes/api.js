@@ -1,41 +1,42 @@
 const express = require('express')
-const Route = express.Router() //merupakan salah satu fungsi pada exspres.js
+const Route = express.Router() 
 
 const BookController = require('../controllers/books')
 const GenreController = require('../controllers/genres')
 const RentController = require('../controllers/books')
 const ReturnController = require('../controllers/books')
 const SearchController= require('../controllers/books')
-const SortController= require('../controllers/books')
-const AvailController= require('../controllers/books')
+const SortingController= require('../controllers/books')
+const AvailabilityController= require('../controllers/books')
 const UserController= require('../controllers/users')
-
+const HistoryController=require('../controllers/books')
 Route
     //USER REGISTER AND LOGIN
-    .post('/regist',UserController.Regist)
+    .post('/user',UserController.Regist)
     .post('/login',UserController.Login)
-    .post('/verif',UserController.Verify)
+    .patch('/user',UserController.Verify)
 
-    //CRUD BOOK
-    .post('/add', BookController.insertData)   //untuk menambahkan data
-    .get('/book',BookController.combination)
-    .patch('/update', BookController.updateBook)
-    .delete('/delete',BookController.deleteBook)
+    //CRUD BOOK 
+    .get('/book',BookController.getAll)
+    .post('/book', BookController.insertData)       
+    .patch('/book', BookController.updateBook)
+    .delete('/book',BookController.deleteBook)
+    //COMBINATION
+    .get('/bookcombin',BookController.combination)  
     //CRUD GENRE
-    .post('/genreinsert',GenreController.insertData) 
-    .get('/genre',GenreController.getAll)
-    .patch('/genreupdate',GenreController.updateGenre)
-    .delete('/genredelete',GenreController.deleteGenre)
+    .post('/genre',GenreController.insertData) 
+    .get('/genre',GenreController.getAll)           
+    .put('/genre',GenreController.updateGenre)
+    .delete('/genre',GenreController.deleteGenre)
     //SORTTING
-    .get('/sortbytitle', SortController.sortbytitle)
-    .get('/sortbyrelease', SortController.sortbyrelease)
-    .get('/sortbygenre',SortController.sortbygenre)
-    .get('/availability', AvailController.availability)
+    .get('/sort', SortingController.sortBook) 
+    .get('/availability',AvailabilityController.availability) 
     //TRANSACTION
     .post('/rent',RentController.insertRent)
     .patch('/return', ReturnController.returnBook)
+    .get('/history', HistoryController.history)
     //SEARCH
-    .get('/search', SearchController.search)
+    .get('/search', SearchController.search) 
     
     
 module.exports = Route

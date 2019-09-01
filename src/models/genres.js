@@ -4,11 +4,18 @@ module.exports = {
     
     insertGenrePromise: (data) => {
         return new Promise((resolve, reject) => {
-            conn.query('INSERT genre SET ?', data, (err, result) => {
-                if (!err) {
-                    resolve(result)
-                } else {
+            conn.query(`SELECT * FROM genre WHERE Genres LIKE '%${data.Genres}%'`,(err,rows)=>{ 
+                console.log(rows)
+                if(rows.length!=0){
                     reject(err)
+                }else{
+                    conn.query('INSERT genre SET ?',data,(err,result)=>{
+                        if(!err){
+                            resolve(result)
+                        } else{
+                            reject(err)
+                        }
+                    })
                 }
             })
         })
@@ -24,13 +31,13 @@ module.exports = {
             })
         })
     },
-    updateGenrePromise: (data)=>{
+    updateGenrePromise: (data, genres)=>{
         return new Promise((resolve, reject) => {
-            conn.query('UPDATE genre SET ? WHERE id=?', [data, data.id], (err, result) => {
-                if (!err) {
-                    resolve("UPDATE SUCCESSFULL! ")
+            conn.query('UPDATE genre SET ? WHERE ?', [genres, data], (err, result) => {
+               if(result.affectedRows!='') {
+               resolve(result)
                 } else {
-                    reject(err)
+                        reject(err)
                 }
             })
         })
@@ -38,8 +45,8 @@ module.exports = {
     deleteGenrePromise: (data) =>{
         return new Promise((resolve, reject) => {
             conn.query('DELETE FROM genre WHERE ?', data, (err, result) => {
-                if (!err) {
-                    resolve("GENRE HAS BEEN DELETED! ")
+                if (result.affectedRows!=0) {
+                    resolve(result)
                 } else {
                     reject(err)
                 }
